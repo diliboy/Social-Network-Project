@@ -81,11 +81,11 @@ namespace Social_Network_Project_BE.Models
             return response;
         }
 
-        public Response News(News news, SqlConnection connection)
+        public Response AddNews(News news, SqlConnection connection)
         {
             Response response = new Response();
             SqlCommand cmd = new SqlCommand("INSERT INTO News(Title,Content,Email,IsActive,CreatedOn)" +
-                "VALUES('" + news.Title + "','" + news.Content + "','" + news.Email + "','1', GETDATE())", connection);
+                "VALUES('" + news.Title + "','" + news.Content + "','" + news.Email + "',1, GETDATE())", connection);
             connection.Open();
             int i = cmd.ExecuteNonQuery();
             connection.Close();
@@ -131,6 +131,71 @@ namespace Social_Network_Project_BE.Models
             {
                 response.StatusCode = 100;
                 response.StatusMessage = "No News Found";
+                response.listNews = null;
+            }
+            return response;
+        }
+
+        public Response AddArticle(Article article, SqlConnection connection)
+        {
+            Response response = new Response();
+            SqlCommand cmd = new SqlCommand("INSERT INTO Articel(Title,Content,Email,Image,IsActive,IsApproved)" +
+                "VALUES('" + article.Title + "','" + article.Content + "','" + article.Email + "','" + article.Image + "',1, 0)", connection);
+            connection.Open();
+            int i = cmd.ExecuteNonQuery();
+            connection.Close();
+            if (i > 0)
+            {
+                response.StatusCode = 200;
+                response.StatusMessage = "Article Created Successfully";
+            }
+            else
+            {
+                response.StatusCode = 100;
+                response.StatusMessage = "Article Creation Failed";
+            }
+            return response;
+        }
+
+        public Response ArtcleList(Article article,SqlConnection connection)
+        {
+            Response response = new Response();
+            SqlDataAdapter da = null;
+            if (article.Type == "User")
+            {
+                new SqlDataAdapter("SELECT * FROM Article WHERE Email = '"+article.Email+"' AND IsActive = 1", connection);
+
+            }
+            if (article.Type == "Page")
+            {
+                new SqlDataAdapter("SELECT * FROM Article WHERE IsActive = 1", connection);
+            }
+            
+            DataTable dt = new DataTable();
+            da.Fill(dt);
+            if (dt.Rows.Count > 0)
+            {
+                response.listArticle = new List<Article>();
+                foreach (DataRow row in dt.Rows)
+                {
+                    Article art = new Article
+                    {
+                        Id = Convert.ToInt32(row["Id"]),
+                        Title = Convert.ToString(row["Title"]),
+                        Content = Convert.ToString(row["Content"]),
+                        Email = Convert.ToString(row["Email"]),
+                        IsActive = Convert.ToInt32(row["IsActive"]),
+                        Image = Convert.ToString(row["Image"])
+                    };
+                    response.listArticle.Add(art);
+                }
+                response.StatusCode = 200;
+                response.StatusMessage = "Articles Retrieved Successfully";
+            }
+            else
+            {
+                response.StatusCode = 100;
+                response.StatusMessage = "No Articles Found";
                 response.listNews = null;
             }
             return response;

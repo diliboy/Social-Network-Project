@@ -9,5 +9,7 @@
         public string Image { get; set; }
         public int IsActive { get; set; }
         public int IsApproved { get; set; }
+
+        public string Type { get; set; }
     }
 }
