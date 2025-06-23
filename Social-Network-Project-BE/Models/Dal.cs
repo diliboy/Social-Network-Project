@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Logging;
 using System.Data;
 
 namespace Social_Network_Project_BE.Models
@@ -200,5 +201,126 @@ namespace Social_Network_Project_BE.Models
             }
             return response;
         }
+        public Response ArticleApproval(Article article, SqlConnection connection)
+        {
+            Response response = new Response();
+            SqlCommand cmd = new SqlCommand("UPDATE Article SET IsApproved = 1 WHERE Id = '" + article.Id + "' AND IsActive =1", connection);
+            connection.Open();
+            int i = cmd.ExecuteNonQuery();
+            connection.Close();
+            if (i > 0)
+            {
+                response.StatusCode = 200;
+                response.StatusMessage = "Article Approved Successfully";
+            }
+            else
+            {
+                response.StatusCode = 100;
+                response.StatusMessage = "Article Approval Failed";
+            }
+            return response;
+        }
+        public Response StaffRegistartion(Staff staff, SqlConnection connection)
+        {
+            Response response = new Response();
+            SqlCommand cmd = new SqlCommand("INSERT INTO Staff(Name,Email,Password,IsActive)" +
+                "VALUES('" + staff.Name + "','" + staff.Email + "','" + staff.Password + "',1)", connection);
+
+            connection.Open();
+            int i = cmd.ExecuteNonQuery();
+            connection.Close();
+
+            if (i > 0)
+            {
+                response.StatusCode = 200;
+                response.StatusMessage = "Staff Registration Successful";
+            }
+            else
+            {
+                response.StatusCode = 100;
+                response.StatusMessage = "Staff Registration Failed";
+            }
+
+            return response;
+        }
+        public Response DeleteStaff(Staff staff, SqlConnection connection)
+        {
+            Response response = new Response();
+            SqlCommand cmd = new SqlCommand("DELETE FROM Staff WHERE Id = '" + staff.Id + "' AND IsActive = 1", connection);
+
+            connection.Open();
+            int i = cmd.ExecuteNonQuery();
+            connection.Close();
+
+            if (i > 0)
+            {
+                response.StatusCode = 200;
+                response.StatusMessage = "Staff Deletion Successful";
+            }
+            else
+            {
+                response.StatusCode = 100;
+                response.StatusMessage = "Staff Deletion Failed";
+            }
+
+            return response;
+        }
+        public Response AddEvent(Events events, SqlConnection connection)
+        {
+            Response response = new Response();
+            SqlCommand cmd = new SqlCommand("INSERT INTO Events(Title,Content,Email,IsActive,CreatedOn)" +
+                "VALUES('" + events.Title + "','" + events.Content + "','" + events.Email + "',1, GETDATE())", connection);
+            connection.Open();
+            int i = cmd.ExecuteNonQuery();
+            connection.Close();
+            if (i > 0)
+            {
+                response.StatusCode = 200;
+                response.StatusMessage = "Event Created Successfully";
+            }
+            else
+            {
+                response.StatusCode = 100;
+                response.StatusMessage = "Event Creation Failed";
+            }
+            return response;
+        }
+
+        public Response EventList(SqlConnection connection)
+        {
+            Response response = new Response();
+            SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM Events WHERE IsActive = 1", connection); ;
+ 
+            DataTable dt = new DataTable();
+            da.Fill(dt);
+            if (dt.Rows.Count > 0)
+            {
+                response.listEvents = new List<Events>();
+                foreach (DataRow row in dt.Rows)
+                {
+                    Events events = new Events
+                    {
+                        Id = Convert.ToInt32(row["Id"]),
+                        Title = Convert.ToString(row["Title"]),
+                        Content = Convert.ToString(row["Content"]),
+                        Email = Convert.ToString(row["Email"]),
+                        IsActive = Convert.ToInt32(row["IsActive"]),
+                        CreatedOn = Convert.ToString(row["CreatedOn"])
+                    };
+                    response.listEvents.Add(events);
+                }
+                response.StatusCode = 200;
+                response.StatusMessage = "Events Retrieved Successfully";
+            }
+            else
+            {
+                response.StatusCode = 100;
+                response.StatusMessage = "No Events Found";
+                response.listNews = null;
+            }
+            return response;
+        }
     }
 }
+
+   

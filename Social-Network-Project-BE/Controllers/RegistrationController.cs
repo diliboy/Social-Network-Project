@@ -53,5 +53,33 @@ namespace Social_Network_Project_BE.Controllers
             response = dal.UserApproval(registration, connection);
             return response;
         }
+
+        [HttpPost]
+        [Route("StaffRegistration")]
+
+        public Response StaffRegistration(Staff staff)
+        {
+            Response response = new Response();
+            SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("SNCon").ToString());
+
+            Dal dal = new Dal();
+            response = dal.StaffRegistartion(staff, connection);
+
+            return response;
+        }
+
+        [HttpPost]
+        [Route("DeleteStaff")]
+
+        public Response DeleteStaff(Staff staff)
+        {
+            Response response = new Response();
+            SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("SNCon").ToString());
+
+            Dal dal = new Dal();
+            response = dal.DeleteStaff(staff, connection);
+
+            return response;
+        }
     }
 }

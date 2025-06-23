@@ -7,51 +7,42 @@ namespace Social_Network_Project_BE.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ArticleController : ControllerBase
+    public class EventsController : ControllerBase
     {
         private readonly IConfiguration _configuration;
 
-        public ArticleController(IConfiguration configuration)
+        public EventsController(IConfiguration configuration)
         {
             _configuration = configuration;
         }
 
         [HttpPost]
-        [Route("AddArticle")]
-        public Response AddArticle(Article article)
+        [Route("AddEvent")]
+
+        public Response AddEvent(Events events)
         {
             Response response = new Response();
             SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("SNCon").ToString());
-    
+
             Dal dal = new Dal();
-            response = dal.AddArticle(article, connection);
-    
-            return response;
-        }
-    
-        [HttpPost]
-        [Route("ArticleList")]
-        public Response ArticleList(Article article)
-        {
-            Response response = new Response();
-            SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("SNCon").ToString());
-    
-            Dal dal = new Dal();
-            response = dal.ArtcleList(article,connection);
-    
+            response = dal.AddEvent(events, connection);
+
             return response;
         }
 
-        [HttpPost]
-        [Route("ArticleApproval")]
+        [HttpGet]
+        [Route("EventsList")]
 
-        public Response UserApproval(Article article, int Id)
+        public Response EventsList()
         {
             Response response = new Response();
             SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("SNCon").ToString());
+
             Dal dal = new Dal();
-            response = dal.ArticleApproval(article, connection);
+            response = dal.EventList(connection);
+
             return response;
         }
+
     }
 }
