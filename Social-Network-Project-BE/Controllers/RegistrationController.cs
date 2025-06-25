@@ -57,7 +57,7 @@ namespace Social_Network_Project_BE.Controllers
         [HttpPost]
         [Route("StaffRegistration")]
 
-        public Response StaffRegistration(Staff staff)
+        public Response StaffRegistration(Registration staff)
         {
             Response response = new Response();
             SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("SNCon").ToString());
@@ -81,5 +81,65 @@ namespace Social_Network_Project_BE.Controllers
 
             return response;
         }
+
+        [HttpPost]
+        [Route("RegistrationList")]
+
+        public Response RegistrationList(Registration registration)
+        {
+            Response response = new Response();
+            SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("SNCon").ToString());
+
+            Dal dal = new Dal();
+            response = dal.RegistrationList(registration, connection);
+
+            return response;
+        }
+
+        [HttpPost]
+        [Route("UploadFile")]
+        public async Task<IActionResult> UploadFile([FromForm] IFormFile FormFile, [FromForm] string FileName)
+        {
+            try
+            {
+                if (FormFile == null || FormFile.Length == 0)
+                {
+                    return BadRequest(new Response
+                    {
+                        StatusCode = 400,
+                        StatusMessage = "No file received"
+                    });
+                }
+
+                // Folder path to save uploaded files
+                var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "UploadedFiles");
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
+                var filePath = Path.Combine(folderPath, FileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await FormFile.CopyToAsync(stream);
+                }
+
+                return Ok(new Response
+                {
+                    StatusCode = 200,
+                    StatusMessage = "FIle uploaded successfully",
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new Response
+                {
+                    StatusCode = 500,
+                    StatusMessage = $"Error uploading file: {ex.Message}"
+                });
+            }
+        }
+
     }
 }

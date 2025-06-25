@@ -8,6 +8,18 @@ namespace Social_Network_Project_BE
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            
+            // Add CORS policy
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowLocalhost3000", policy =>
+                {
+                    policy.WithOrigins("http://localhost:3000")
+                          .AllowAnyHeader()
+                          .AllowAnyMethod();
+                });
+            });
+
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -22,6 +34,8 @@ namespace Social_Network_Project_BE
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+            // Use CORS policy before controllers
+            app.UseCors("AllowLocalhost3000");
 
             app.UseHttpsRedirection();
 
