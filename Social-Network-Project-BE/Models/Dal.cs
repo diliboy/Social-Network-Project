@@ -138,8 +138,12 @@ namespace Social_Network_Project_BE.Models
         public Response AddNews(News news, SqlConnection connection)
         {
             Response response = new Response();
-            SqlCommand cmd = new SqlCommand("INSERT INTO News(Title,Content,Email,IsActive,CreatedOn)" +
-                "VALUES('" + news.Title + "','" + news.Content + "','" + news.Email + "',1, GETDATE())", connection);
+            SqlCommand cmd = new SqlCommand(@"INSERT INTO News (Title, Content, Email, IsActive, CreatedOn, IsApproved)
+            VALUES (@Title, @Content, @Email, 1, GETDATE(), 0)", connection);
+
+            cmd.Parameters.AddWithValue("@Title", news.Title);
+            cmd.Parameters.AddWithValue("@Content", news.Content);
+            cmd.Parameters.AddWithValue("@Email", news.Email);
             connection.Open();
             int i = cmd.ExecuteNonQuery();
             connection.Close();
@@ -156,10 +160,10 @@ namespace Social_Network_Project_BE.Models
             return response;
         }
 
-        public Response NewsList(SqlConnection connection)
+        public Response UserNewsList(SqlConnection connection)
         {
             Response response = new Response();
-            SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM News WHERE IsActive = 1", connection);
+            SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM News WHERE IsActive = 1 AND IsApproved = 1", connection);
             DataTable dt = new DataTable();
             da.Fill(dt);
             if (dt.Rows.Count > 0)
@@ -186,6 +190,61 @@ namespace Social_Network_Project_BE.Models
                 response.StatusCode = 100;
                 response.StatusMessage = "No News Found";
                 response.listNews = null;
+            }
+            return response;
+        }
+
+        public Response AdminNewsList(SqlConnection connection)
+        {
+            Response response = new Response();
+            SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM News WHERE IsActive = 1", connection);
+            DataTable dt = new DataTable();
+            da.Fill(dt);
+            if (dt.Rows.Count > 0)
+            {
+                response.listNews = new List<News>();
+                foreach (DataRow row in dt.Rows)
+                {
+                    News news = new News
+                    {
+                        Id = Convert.ToInt32(row["Id"]),
+                        Title = Convert.ToString(row["Title"]),
+                        Content = Convert.ToString(row["Content"]),
+                        Email = Convert.ToString(row["Email"]),
+                        IsActive = Convert.ToInt32(row["IsActive"]),
+                        CreatedOn = Convert.ToString(row["CreatedOn"]),
+                        IsApproved = Convert.ToInt32(row["IsApproved"]),
+                    };
+                    response.listNews.Add(news);
+                }
+                response.StatusCode = 200;
+                response.StatusMessage = "News Retrieved Successfully";
+            }
+            else
+            {
+                response.StatusCode = 100;
+                response.StatusMessage = "No News Found";
+                response.listNews = null;
+            }
+            return response;
+        }
+
+        public Response NewsApproval(News news, SqlConnection connection)
+        {
+            Response response = new Response();
+            SqlCommand cmd = new SqlCommand("UPDATE News SET IsApproved = 1 WHERE Id = '" + news.Id + "' AND IsActive =1", connection);
+            connection.Open();
+            int i = cmd.ExecuteNonQuery();
+            connection.Close();
+            if (i > 0)
+            {
+                response.StatusCode = 200;
+                response.StatusMessage = "News Approved Successfully";
+            }
+            else
+            {
+                response.StatusCode = 100;
+                response.StatusMessage = "News Approval Failed";
             }
             return response;
         }

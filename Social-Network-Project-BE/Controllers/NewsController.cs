@@ -39,8 +39,34 @@ namespace Social_Network_Project_BE.Controllers
             SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("SNCon").ToString());
 
             Dal dal = new Dal();
-            response = dal.NewsList(connection);
+            response = dal.UserNewsList(connection);
 
+            return response;
+        }
+
+        [HttpGet]
+        [Route("AdminNewsList")]
+
+        public Response AminNewsList()
+        {
+            Response response = new Response();
+            SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("SNCon").ToString());
+
+            Dal dal = new Dal();
+            response = dal.AdminNewsList(connection);
+
+            return response;
+        }
+
+        [HttpPost]
+        [Route("NewsApproval")]
+
+        public Response NewsApproval(News news, int Id)
+        {
+            Response response = new Response();
+            SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("SNCon").ToString());
+            Dal dal = new Dal();
+            response = dal.NewsApproval(news, connection);
             return response;
         }
     }

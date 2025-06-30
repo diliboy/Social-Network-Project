@@ -8,5 +8,6 @@
         public string? Email { get; set; }
         public int? IsActive { get; set; }
         public string? CreatedOn { get; set; }
+        public int? IsApproved { get; set; }
     }
 }
